@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torus Trio</title>
+    <style>
+        body { margin: 0; 
+        background-color: black; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        height: 100vh;
+        margin: 0; 
+        outline: none;
+        background: #000;
+        -webkit-tap-highlight-color: transparent;
+        }
+        canvas { display: block; }
+        #infoButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .info-popup {
+            display: none;
+            position: absolute;
+            top: 40px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            width: 300px;
+            text-align: left;
+            user-select: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <button id="infoButton">&#9432;</button>
+    <div class="info-popup" id="infoPopup">
+        <p style="text-align:center;" ><strong>Torus Trio</strong></p>
+    <p style="color:pink; text-align: center;">
+    
+    The "Torus Trio" in this code refers to the three different torus shapes displayed in the scene:<br />
+        
+        <ul>
+            <li>Ring Torus:<br />
+                Created using TorusGeometry(1, 0.5, 16, 100). This is a typical doughnut shape where the radius of the tube is smaller than the torus' main radius.
+            </li>
+            <li>Horn Torus:<br />
+                  Created using TorusGeometry(1, 1, 20, 100). This is a self-touching torus where the tube's radius is equal to the main radius.
+            </li>
+            <li>Spindle Torus:<br />
+                  Created using TorusGeometry(1, 0.6, 16, 100). This forms a fat torus, where the tube is larger than usual, giving it a thicker appearance.
+            </li>
+        </ul><br />
+        
+        Each of these tori has a rainbow-colored wireframe and rotates around the X and Y axes.
+    
+    </p>
+            <p style="color:yellow; text-align: center;">For Equations visit my Github. Enjoy!</p>
+    </div>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Function to create a rainbow wireframe torus
+        function createRainbowWireframe(geometry) {
+            const edges = new THREE.EdgesGeometry(geometry);
+            const colors = [];
+            const vertices = edges.attributes.position.count;
+
+            for (let i = 0; i < vertices; i++) {
+                const color = new THREE.Color();
+                color.setHSL(i / vertices, 1.0, 0.5); // Creates rainbow effect
+                colors.push(color.r, color.g, color.b);
+            }
+
+            const colorAttribute = new THREE.Float32BufferAttribute(colors, 3);
+            edges.setAttribute('color', colorAttribute);
+
+            const material = new THREE.LineBasicMaterial({ vertexColors: true });
+            return new THREE.LineSegments(edges, material);
+        }
+
+        // Torus geometries
+        const ringTorusGeometry = new THREE.TorusGeometry(1, 0.5, 16, 100);
+        const hornTorusGeometry = new THREE.TorusGeometry(1, 1, 20, 100);
+        const spindleTorusGeometry = new THREE.TorusGeometry(1, 0.6, 16, 100);
+
+        // Rainbow wireframe tori
+        const ringTorus = createRainbowWireframe(ringTorusGeometry);
+        const hornTorus = createRainbowWireframe(hornTorusGeometry);
+        const spindleTorus = createRainbowWireframe(spindleTorusGeometry);
+
+        // Positioning
+        ringTorus.position.x = -4;
+        hornTorus.position.x = 0;
+        spindleTorus.position.x = 4;
+
+        // Adding to scene
+        scene.add(ringTorus);
+        scene.add(hornTorus);
+        scene.add(spindleTorus);
+
+        // Camera position
+        camera.position.z = 13;
+
+        // Starry background
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starCount = 1000;
+            const starPositions = [];
+            const starColors = [];
+
+            for (let i = 0; i < starCount; i++) {
+                const x = (Math.random() - 0.5) * 100;
+                const y = (Math.random() - 0.5) * 100;
+                const z = (Math.random() - 0.5) * 100;
+                starPositions.push(x, y, z);
+
+                // Assigning random colors to stars
+                const color = new THREE.Color();
+                color.setHSL(Math.random(), 1.0, 0.8);
+                starColors.push(color.r, color.g, color.b);
+            }
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+            starGeometry.setAttribute('color', new THREE.Float32BufferAttribute(starColors, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                vertexColors: true,
+                size: 0.09,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+            return stars;
+        }
+
+        const stars = createStars();
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate tori
+            ringTorus.rotation.x += 0.01;
+            ringTorus.rotation.y += 0.01;
+            hornTorus.rotation.x += 0.01;
+            hornTorus.rotation.y += 0.01;
+            spindleTorus.rotation.x += 0.01;
+            spindleTorus.rotation.y += 0.01;
+
+            // Twinkling stars effect
+            const starColors = stars.geometry.attributes.color.array;
+            for (let i = 0; i < starColors.length; i += 3) {
+                starColors[i] = Math.random();     // R
+                starColors[i + 1] = Math.random(); // G
+                starColors[i + 2] = Math.random(); // B
+            }
+            stars.geometry.attributes.color.needsUpdate = true;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+        
+        $("#infoButton").click(function() {
+            $("#infoPopup").fadeToggle();
+        });
+    </script>
+</body>
+  </html>
+  

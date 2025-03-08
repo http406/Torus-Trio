@@ -22,17 +22,7 @@ Each of these tori has a **rainbow-colored wireframe** and rotates around the X 
 ### **Mathematical Equation Behind the Torus**  
 A **torus** is defined parametrically using the following equations in 3D space:
 
-\[
-x = (R + r \cos v) \cos u
-\]
-
-\[
-y = (R + r \cos v) \sin u
-\]
-
-\[
-z = r \sin v
-\]
+![Image](https://github.com/user-attachments/assets/13f1f924-15b0-4e58-90b7-b651b4c77597)
 
 where:  
 - \( R \) = Major radius (distance from center of torus to center of tube).  
